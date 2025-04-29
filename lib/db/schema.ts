@@ -1,9 +1,9 @@
-import { pgTable, text, uuid, integer, boolean, timestamp } from "drizzle-orm/pg-core"
-import { relations } from "drizzle-orm"
+import { pgTable, text, timestamp, uuid, integer, boolean } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 
 export const files = pgTable("files", {
     id: uuid("id").defaultRandom().primaryKey(),
-    
+
     // basic file or folder information
     name: text("name").notNull(),
     path: text("path").notNull(),
@@ -11,8 +11,8 @@ export const files = pgTable("files", {
     type: text("type").notNull(),
 
     //storage information 
-    filerUrl: text("file_url").notNull(),      // url to access file
-    thumbnailUrl: text("thumnail_url"),
+    fileUrl: text("file_url").notNull(),      // url to access file
+    thumbnailUrl: text("thumbnail_url"),
 
     // Ownership
     userId: text("user_id").notNull(),
@@ -29,15 +29,17 @@ export const files = pgTable("files", {
 
 })
 
-export const filesRelations = relations(files, ({one, many}) => ({
+export const filesRelations = relations(files, ({ one, many }) => ({
+    // Relationship to parent folder
     parent: one(files, {
-        fields: [files.parentId],
-        references: [files.id]
+        fields: [files.parentId], // The foreign key in this table
+        references: [files.id], // The primary key in the parent table
     }),
 
-    //relationship to child files/folder
-    children: many(files)
-}))
+    // Relationship to child files/folders
+    children: many(files),
+}));
 
-export const File = typeof files.$inferSelect;
-export const NewFile = typeof files.$inferInsert;   
+
+export type File = typeof files.$inferSelect;
+export type NewFile = typeof files.$inferInsert;
